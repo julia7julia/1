@@ -237,58 +237,148 @@
 
 ##    5. Подготовим шаблон jinja2 новой конфигурации для nginx, чтобы сервис слушал на нестандартном порту 8080. 
     
-    В шаблоне для номера порта использовать переменные ansible
+В шаблоне для номера порта использовать переменные ansible.
 
-Создадим файл шаблона для конфига NGINX, имя файла nginx.conf.j2. Обратите внимание, что в шаблоне используется переменная, которую в дальнейшем надо где-то определить. Данные для записи: events { worker_connections 1024; }
+Создадим файл шаблона для конфига NGINX, имя файла nginx.conf.j2. Обратите внимание, что в шаблоне используется переменная, которую в дальнейшем надо где-то определить. Данные для записи: 
 
-http { server { listen {{ nginx_listen_port }} default_server; server_name default_server; root /usr/share/nginx/html; location / { } } }
+    events {
+     worker_connections 1024;
+    }
+
+    http {
+     server {
+       listen {{ nginx_listen_port }} default_server;
+       server_name default_server;
+       root /usr/share/nginx/html;
+       location / {
+       }
+     }
+    }
+
 Добавим в playbook задачу, которая копирует подготовленный шаблон на хост. Также в плейбук добавлено определение переменной в секции vars. Для этого в nginx.yml введем следующее:
 
-    name: Install EPEL Repo hosts: webservers become: true vars: nginx_listen_port: 8080 tasks:
-        name: Install EPEL Repo package from standard repo yum: name: epel-release state: present
-        name: install nginx from repo yum: name: nginx state: latest tags: nginx-package packages
-        name: Create config file from template template: src: nginx.conf.j2 dest: /etc/nginx/nginx.conf notify:
-            restart nginx tags: nginx-configuration
+    ---
+    - name: Install EPEL Repo
+      hosts: webservers
+      become: true
+      vars:
+        nginx_listen_port: 8080
+      tasks:
+        - name: Install EPEL Repo package from standard repo
+          yum:
+            name: epel-release
+            state: present
+        - name: install nginx from repo
+          yum:
+            name: nginx
+            state: latest
+          tags:
+            nginx-package
+            packages
+        - name: Create config file from template
+          template:
+            src: nginx.conf.j2
+            dest: /etc/nginx/nginx.conf
+         notify:
+            - restart nginx
+          tags:
+            nginx-configuration
 
-Запускаем playbook: ansible-playbook nginx.yml (ответ системы должен быть:
+Запускаем playbook: 
 
-PLAY [Install EPEL Repo] ************************************************************
+    ansible-playbook nginx.yml 
+    
+*Ответ системы должен быть:*
 
-TASK [Gathering Facts] ************************************************************** ok: [nginx]
+    PLAY [Install EPEL Repo] ************************************************************
 
-TASK [Install EPEL Repo package from standard repo] ********************************* ok: [nginx]
+    TASK [Gathering Facts] ************************************************************** ok: [nginx]
 
-TASK [install nginx from repo] ****************************************************** changed: [nginx]
+    TASK [Install EPEL Repo package from standard repo] ********************************* ok: [nginx]
 
-TASK [Create config file from template] ********************************************* changed: [nginx]
+    TASK [install nginx from repo] ****************************************************** changed: [nginx]
 
-PLAY RECAP ************************************************************************** nginx : ok=4 changed=2 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0)
+    TASK [Create config file from template] ********************************************* changed: [nginx]
+
+    PLAY RECAP ************************************************************************** nginx : ok=4 changed=2 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
+
 Добавить секции handler и notify для рестарта nginx не при любом старте playbook, а только при изменения в конфигурации. Для этого в nginx.yml введем следующее:
 
-    name: Install EPEL Repo hosts: webservers become: true vars: nginx_listen_port: 8080 tasks:
-        name: Install EPEL Repo package from standard repo yum: name: epel-release state: present
-        name: install nginx from repo yum: name: nginx state: latest tags: nginx-package packages
-        name: Create config file from template template: src: nginx.conf.j2 dest: /etc/nginx/nginx.conf notify:
-            restart nginx tags: nginx-configuration handlers:
-        name: restart nginx systemd: name: nginx state: restarted enabled: yes
+    ---
+    - name: Install EPEL Repo
+      hosts: webservers
+      become: true
+      vars:
+        nginx_listen_port: 8080
+      tasks:
+        - name: Install EPEL Repo package from standard repo
+          yum:
+            name: epel-release
+            state: present
+        - name: install nginx from repo
+          yum:
+            name: nginx
+            state: latest
+          tags:
+            nginx-package
+            packages
+        - name: Create config file from template
+          template:
+            src: nginx.conf.j2
+            dest: /etc/nginx/nginx.conf
+          notify:
+            - restart nginx
+          tags:
+            nginx-configuration
+      handlers:
+        - name: restart nginx
+          systemd:
+            name: nginx
+            state: restarted
+            enabled: yes
 
-Запускаем playbook: ansible-playbook nginx.yml (ответ системы должен быть: PLAY [Install EPEL Repo] ******************************************************************************************************************************************************************
+Запускаем playbook: 
 
-TASK [Gathering Facts] ******************************************************************************************************************************************************************** ok: [nginx]
+    ansible-playbook nginx.yml 
+    
+*Ответ системы должен быть:*
 
-TASK [Install EPEL Repo package from standard repo] *************************************************************************************************************************************** ok: [nginx]
+     PLAY [Install EPEL Repo] ******************************************************************************************************************************************************************
 
-TASK [install nginx from repo] ************************************************************************************************************************************************************ ok: [nginx]
+    TASK [Gathering Facts] ******************************************************************************************************************************************************************** ok: [nginx]
 
-TASK [Create config file from template] *************************************************************************************************************************************************** ok: [nginx]
+    TASK [Install EPEL Repo package from standard repo] *************************************************************************************************************************************** ok: [nginx]
 
-PLAY RECAP ******************************************************************************************************************************************************************************** nginx : ok=4 changed=0 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0 )
+    TASK [install nginx from repo] ************************************************************************************************************************************************************ ok: [nginx]
 
-Чтобы проверить работу NGINX на нестандартном порту, нам надо выяснить IP адрес, который получила виртуальная машина при создании vagrant-ом Это можно сделать командой: vagrant ssh -c "ip addr show" (ответ системы должен быть: ... 3: eth1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000 link/ether 08:00:27:1c:63:58 brd ff:ff:ff:ff:ff:ff inet 192.168.11.150/24 brd 192.168.11.255 scope global noprefixroute eth1 ...)
+    TASK [Create config file from template] *************************************************************************************************************************************************** ok: [nginx]
+
+    PLAY RECAP ******************************************************************************************************************************************************************************** nginx : ok=4 changed=0 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0 
+
+Чтобы проверить работу NGINX на нестандартном порту, нам надо выяснить IP адрес, который получила виртуальная машина при создании vagrant-ом Это можно сделать командой: 
+
+    vagrant ssh -c "ip addr show" 
+    
+*Ответ системы должен быть: 
+
+    ... 
+    3: eth1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 
+    1500 qdisc pfifo_fast state UP group default 
+    qlen 1000 link/ether 08:00:27:1c:63:58 brd ff:ff:ff:ff:ff:ff 
+    inet 192.168.11.150/24 
+    brd 192.168.11.255 scope global noprefixroute eth1 
+    ...
 
 В полученном выводе найдите описание сетевых интерфейсов. Первый интерфейс — локальный loopback, второй — автоматически добавленный вагрантом, предназначеный для интерконнекта ядра вагранта к виртуальной машине и не доступен снаружи виртуалки. А третий как раз публичный и к нему можно обращаться.
 
 ##    6. Проверка
 
-    Затем в браузере открываем страницу: http://192.168.11.150:8080/
+Затем в браузере открываем страницу: 
+
+http://192.168.11.150:8080/
+
+Верный вид страницы:
+
+![ ](/home/mary/lev/lab1/scr.png)
+
 
