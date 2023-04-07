@@ -219,7 +219,9 @@
 *Ответ системы должен быть:*
 
     playbook: nginx.yml
-    play #1 (webservers): Install EPEL Repo TAGS: [] TASK TAGS: [nginx-configuration, nginx-package packages]
+    play #1 (webservers): Install 
+    EPEL Repo TAGS: [] 
+    TASK TAGS: [nginx-configuration, nginx-package packages]
 
 Запустим только установку NGINX, использовав любой из подходящих тегов: 
 
