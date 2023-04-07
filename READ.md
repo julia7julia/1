@@ -44,7 +44,9 @@
 
 *Ответ системы должен быть:*
 
-     ... ==> nginx: Setting hostname... ==> nginx: Configuring and enabling network interfaces... ==> nginx: Rsyncing folder: /home/mary/os_lab2/test/ansible/ => /vagrant
+     ... ==> nginx: Setting hostname... 
+     ==> nginx: Configuring and enabling network interfaces... 
+     ==> nginx: Rsyncing folder: /home/mary/os_lab2/test/ansible/ => /vagrant
 
 Для подключения к хосту nginx нам необходимо будет передать множество параметров - это особенность Vagrant. Узнать эти параметры можно с помощью команды:
 
@@ -73,7 +75,10 @@
 
 *Ответ системы должен быть:* 
 
-    nginx | SUCCESS => { "ansible_facts": { "discovered_interpreter_python": "/usr/bin/python" }, "changed": false, "ping": "pong" }) Если результат не SUCCESS, то ищите причину в inventory.
+    nginx | SUCCESS => { "ansible_facts": { "discovered_interpreter_python": 
+    "/usr/bin/python" }, "changed": false, "ping": "pong" }
+    
+Если результат не SUCCESS, то ищите причину в inventory.
 
 ##    2. Настроиваем ansible для доступа к стенду
 
