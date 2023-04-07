@@ -82,19 +82,59 @@
 
 ##    2. Настроиваем ansible для доступа к стенду
 
-Чтобы не пришлось в дальнейшем каждый раз явно указывать наш инвентори файл в командной строке, создадим файл конфигурации ansible.cfg Для этого в текущем каталоге создадим файл ansible.cfg со следующим содержанием: [defaults] inventory = inventory remote_user= vagrant host_key_checking = False transport=smart
+Чтобы не пришлось в дальнейшем каждый раз явно указывать наш инвентори файл в командной строке, создадим файл конфигурации ansible.cfg Для этого в текущем каталоге создадим файл ansible.cfg со следующим содержанием: 
 
-Теперь из inventory можно убрать информацию о пользователе: [webservers] nginx ansible_host=127.0.0.1 ansible_port=2222 ansible_private_key_file=/home/mary/os_lab2/test/ansible/.vagrant/machines/nginx/virtualbox/private_key
+    [defaults] 
+    inventory = inventory 
+    remote_user = vagrant 
+    host_key_checking = False 
+    transport = smart
 
-Еще раз убедимся, что управляемый хост доступен, только теперь без явного указания inventory файла: ansible -m ping nginx (ответ системы должен быть: nginx | SUCCESS => { "ansible_facts": { "discovered_interpreter_python": "/usr/bin/python" }, "changed": false, "ping": "pong" })
+Теперь из inventory можно убрать информацию о пользователе: 
+
+    [webservers] 
+    nginx ansible_host=127.0.0.1 
+    ansible_port=2222 
+    ansible_private_key_file=/home/mary/os_lab2/test/ansible/.vagrant/machines/nginx/virtualbox/private_key
+
+Еще раз убедимся, что управляемый хост доступен, только теперь без явного указания inventory файла: 
+
+    ansible -m ping nginx 
+    
+*Ответ системы должен быть:*
+
+    nginx | SUCCESS => { "ansible_facts": { "discovered_interpreter_python": "/usr/bin/python" }, 
+    "changed": false, "ping": "pong" }
 
 Теперь, когда мы убедились, что у нас все подготовлено - установлен Ansible, поднят хост для теста и Ansible имеет к нему доступ, мы можем конфигурировать наш хост. Для начала воспользуемся Ad-Hoc командами и выполним некоторые удаленные команды на нашем хосте.
 
-Посмотрим какое ядро установлено на хосте: ansible nginx -m command -a "uname -r" (ответ системы должен быть: nginx | CHANGED | rc=0 >> 3.10.0-1127.el7.x86_64) Проверим статус сервиса firewalld: ansible nginx -m systemd -a name=firewalld (ответ системы должен быть: nginx | SUCCESS => "ansible_facts": { "discovered_interpreter_python": "/usr/bin/python" }, "changed": false, "name": "firewalld", "status": ...)
+Посмотрим какое ядро установлено на хосте: 
 
-Установим пакет epel-release на наш хост: ansible nginx -m yum -a "name=epel-release state=present" -b (ответ системы должен быть: nginx | CHANGED => "ansible_facts": "discovered_interpreter_python": "/usr/bin/python" ... 1/1 \n\nInstalled:\n epel-release.noarch 0:7-11
-\n\nComplete!\n")
+    ansible nginx -m command -a "uname -r" 
+    
+*Ответ системы должен быть:*
 
+    nginx | CHANGED | rc=0 >> 3.10.0-1127.el7.x86_64
+    
+Проверим статус сервиса firewalld: 
+
+    ansible nginx -m systemd -a name=firewalld 
+    
+*Ответ системы должен быть:*
+
+    nginx | SUCCESS => "ansible_facts": { "discovered_interpreter_python": "/usr/bin/python" }, 
+    "changed": false, "name": "firewalld", "status": ...
+
+Установим пакет epel-release на наш хост: 
+
+    ansible nginx -m yum -a "name=epel-release state=present" -b 
+    
+*Ответ системы должен быть:* 
+
+    nginx | CHANGED => "ansible_facts": "discovered_interpreter_python": "/usr/bin/python" ... 
+    1/1 \n\nInstalled:\n epel-release.noarch 0:7-11 \n\nComplete!\n"
+
+##    3. Напишем плейбук, который устанавливает NGINX в конфигурации по умолчанию, с применением модуля yum
 ##    3. Напишем плейбук, который устанавливает NGINX в конфигурации по умолчанию, с применением модуля yum
 
 Создаем Playbook, который будет выполнять установку пакета epel-release. Создаем файл epel.yml со следующим содержимым:
