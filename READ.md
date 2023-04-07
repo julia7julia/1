@@ -344,17 +344,17 @@
     
 *Ответ системы должен быть:*
 
-     PLAY [Install EPEL Repo] ****************************************************************************
+     PLAY [Install EPEL Repo] *********************************
 
-    TASK [Gathering Facts] ************************************************* ok: [nginx]
+    TASK [Gathering Facts] ************************************ ok: [nginx]
 
-    TASK [Install EPEL Repo package from standard repo] ********************************************************************* ok: [nginx]
+    TASK [Install EPEL Repo package from standard repo] ******* ok: [nginx]
 
-    TASK [install nginx from repo] ********************************************************************************** ok: [nginx]
+    TASK [install nginx from repo] **************************** ok: [nginx]
 
-    TASK [Create config file from template] ******************************************************* ok: [nginx]
+    TASK [Create config file from template] ******************* ok: [nginx]
 
-    PLAY RECAP *************************************************************************************************************** 
+    PLAY RECAP *************************************************
     nginx : ok=4 changed=0 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0 
 
 Чтобы проверить работу NGINX на нестандартном порту, нам надо выяснить IP адрес, который получила виртуальная машина при создании vagrant-ом Это можно сделать командой: 
