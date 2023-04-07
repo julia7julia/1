@@ -4,7 +4,7 @@
 
 >Vagrant создает виртуальную машину, доступную только в терминальном режиме (через командную строку), при этом сама разработка продолжается на хост-машине, а вот запуск кода на выполнение происходит внутри машины. Другими словами, редактор ставится на вашу основную систему, и код лежит также в ней. Vagrant прозрачно прокидывает код внутрь машины и позволяет его запускать. 
 
-# Этапы работы: 
+# *Этапы работы:*
 
 ## Предварительная подготовка: 
 
@@ -12,38 +12,61 @@
 
     sudo apt install ansible
 
-и убедитесь, что он корректно установлен:
+Уубедитесь, что он корректно установлен:
 
     ansible --version 
 
-(ответ системы должен быть: 
+*Ответ системы должен быть:*
 
-    ansible 2.9.25(или другая версия))
-
-##   1. Подготовить стенд на Vagrant
-
-Создать каталог ansible: mkdir ansible
-    sudo apt install ansible
-и убедитесь, что он корректно установлен:
-    ansible --version 
-(ответ системы должен быть: 
-    ansible 2.9.25(или другая версия))
+    ansible 2.9.25(или другая версия)
 
 ##   1. Подготовить стенд на Vagrant
 
 Создать каталог ansible: mkdir ansible
 
-Зайти в папку: cd ansible
+Зайти в папку: 
 
-В этот каталог скопировать присланные файлы Vagrant Проверить статус Vagrant: vagrant status (ответ системы должен быть: nginx not created (virtualbox))
+    cd ansible
 
-Поднять Vagrant: vagrant up (ответ системы должен быть: ... ==> nginx: Setting hostname... ==> nginx: Configuring and enabling network interfaces... ==> nginx: Rsyncing folder: /home/mary/os_lab2/test/ansible/ => /vagrant)
+В этот каталог скопировать присланные файлы Vagrant. Проверить статус Vagrant: 
 
-Для подключения к хосту nginx нам необходимо будет передать множество параметров - это особенность Vagrant. Узнать эти параметры можно с помощью команды vagrant ssh-config. Вот основные необходимые нам (значения у всех могут отличаться, учитывайте различия) vagrant ssh-config (ответ системы должен быть: Host nginx HostName 127.0.0.1 User vagrant Port 2222 UserKnownHostsFile /dev/null StrictHostKeyChecking no PasswordAuthentication no IdentityFile /home/mary/os_lab2/test/ansible/.vagrant/machines/nginx/virtualbox/private_key IdentitiesOnly yes LogLevel FATAL)
+    vagrant status
 
-Используя эти параметры, создадим свой первый inventory файл с помощью команды nano inventory или в сразу добавим в Visual Studio. Записываем в этот файл данные cat inventory Данные для записи: [webservers] nginx ansible_host=127.0.0.1 ansible_port=2222 ansible_private_key_file=/home/mary/os_lab2/test/ansible/.vagrant/machines/nginx/virtualbox/private_key
+*ответ системы должен быть:*
 
-Убедимся, что Ansible может управлять нашим хостом. Сделать это можно с помощью команды: ansible nginx -i inventory -m ping (ответ системы должен быть: nginx | SUCCESS => { "ansible_facts": { "discovered_interpreter_python": "/usr/bin/python" }, "changed": false, "ping": "pong" }) Если результат не SUCCESS, то ищите причину в inventory.
+    nginx not created (virtualbox)
+
+Поднять Vagrant: 
+
+    vagrant up
+
+*Ответ системы должен быть:*
+
+     ... ==> nginx: Setting hostname... ==> nginx: Configuring and enabling network interfaces... ==> nginx: Rsyncing folder: /home/mary/os_lab2/test/ansible/ => /vagrant
+
+Для подключения к хосту nginx нам необходимо будет передать множество параметров - это особенность Vagrant. Узнать эти параметры можно с помощью команды:
+
+    vagrant ssh-config 
+
+Вот основные необходимые нам значения (у всех могут отличаться, учитывайте различия) 
+
+    vagrant ssh-config
+    
+*Ответ системы должен быть:*
+
+    Host nginx HostName 127.0.0.1 User vagrant Port 2222 UserKnownHostsFile /dev/null StrictHostKeyChecking no PasswordAuthentication no IdentityFile /home/mary/os_lab2/test/ansible/.vagrant/machines/nginx/virtualbox/private_key IdentitiesOnly yes LogLevel FATAL
+
+Используя эти параметры, создадим свой первый inventory файл с помощью команды nano inventory или в сразу добавим в Visual Studio. Записываем в этот файл данные cat inventory Данные для записи: 
+
+    [webservers] nginx ansible_host=127.0.0.1 ansible_port=2222 ansible_private_key_file=/home/mary/os_lab2/test/ansible/.vagrant/machines/nginx/virtualbox/private_key
+
+Убедимся, что Ansible может управлять нашим хостом. Сделать это можно с помощью команды: 
+
+    ansible nginx -i inventory -m ping
+
+*Ответ системы должен быть:* 
+
+    nginx | SUCCESS => { "ansible_facts": { "discovered_interpreter_python": "/usr/bin/python" }, "changed": false, "ping": "pong" }) Если результат не SUCCESS, то ищите причину в inventory.
 
 ##    2. Настроиваем ansible для доступа к стенду
 
