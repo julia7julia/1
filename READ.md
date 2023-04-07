@@ -191,23 +191,47 @@
 
 За основу возьмем уже созданный плейбук epel.yml. Скопируем этот файл с именем nginx.yml. Добавим в этот новый файл установку пакета nginx. Секция будет выглядеть так:
 
-    name: Install EPEL Repo hosts: webservers become: true tasks:
-        name: Install EPEL Repo package from standard repo yum: name: epel-release state: present
-        name: install nginx from repo yum: name: nginx state: latest tags: nginx-package packages
+    ---
+    - name: Install EPEL Repo
+      hosts: webservers
+      become: true
+      vars:
+        nginx_listen_port: 8080
+      tasks:
+        - name: Install EPEL Repo package from standard repo
+          yum:
+            name: epel-release
+            state: present
+        - name: install nginx from repo
+          yum:
+            name: nginx
+            state: latest
+          tags:
+            nginx-package
+            packages
 
 Обратите внимание - добавили tags. Теперь можно вывести в консоль список тегов и выполнить, например, только часть из задач описанных в плейбуке, а именно установку NGINX. В нашем случае так, например, можно осуществлять его обновление.
 
-Выведем в консоль все теги: ansible-playbook nginx.yml --list-tags (ответ системы должен быть: playbook: nginx.yml
+Выведем в консоль все теги: 
 
-play #1 (webservers): Install EPEL Repo TAGS: [] TASK TAGS: [nginx-configuration, nginx-package packages])
+    ansible-playbook nginx.yml --list-tags
 
-Запустим только установку NGINX, использовав любой из подходящих тегов: ansible-playbook nginx.yml --tag packages (ответ системы должен быть:
+*Ответ системы должен быть:*
 
-PLAY [Install EPEL Repo] ******************************************************************************************************************************************************************
+    playbook: nginx.yml
+    play #1 (webservers): Install EPEL Repo TAGS: [] TASK TAGS: [nginx-configuration, nginx-package packages]
 
-TASK [Gathering Facts] ******************************************************************************************************************************************************************** ok: [nginx]
+Запустим только установку NGINX, использовав любой из подходящих тегов: 
 
-PLAY RECAP ******************************************************************************************************************************************************************************** nginx : ok=1 changed=0 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0 )
+    ansible-playbook nginx.yml --tag packages 
+
+*Ответ системы должен быть:*
+
+    PLAY [Install EPEL Repo] ******************************************************************************************************************************************************************
+
+    TASK [Gathering Facts] ******************************************************************************************************************************************************************** ok: [nginx]
+
+    PLAY RECAP ******************************************************************************************************************************************************************************** nginx : ok=1 changed=0 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0 
 
 ##    5. Подготовим шаблон jinja2 новой конфигурации для nginx, чтобы сервис слушал на нестандартном порту 8080. 
     
