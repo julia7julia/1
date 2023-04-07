@@ -10,7 +10,7 @@
 
 Если необходимо, установите ansible sudo apt install ansible и убедитесь, что он корректно установлен ansible --version (ответ системы должен быть: ansible 2.9.25(или другая версия))
 
-##    1. Подготовить стенд на Vagrant
+##   1. Подготовить стенд на Vagrant
 
 Создать каталог ansible: mkdir ansible
 
