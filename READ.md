@@ -22,7 +22,9 @@
 
 ##   1. Подготовить стенд на Vagrant
 
-Создать каталог ansible: mkdir ansible
+Создать каталог ansible: 
+
+    mkdir ansible
 
 Зайти в папку: 
 
@@ -48,17 +50,22 @@
 
     vagrant ssh-config 
 
-Вот основные необходимые нам значения (у всех могут отличаться, учитывайте различия) 
-
-    vagrant ssh-config
+Вот основные необходимые нам значения (у всех могут отличаться, учитывайте различия)
     
 *Ответ системы должен быть:*
 
-    Host nginx HostName 127.0.0.1 User vagrant Port 2222 UserKnownHostsFile /dev/null StrictHostKeyChecking no PasswordAuthentication no IdentityFile /home/mary/os_lab2/test/ansible/.vagrant/machines/nginx/virtualbox/private_key IdentitiesOnly yes LogLevel FATAL
+    Host nginx HostName 127.0.0.1 
+    User vagrant Port 2222 
+    UserKnownHostsFile /dev/null StrictHostKeyChecking no 
+    PasswordAuthentication no 
+    IdentityFile /home/mary/os_lab2/test/ansible/.vagrant/machines/nginx/virtualbox/private_key 
+    IdentitiesOnly yes LogLevel FATAL
 
 Используя эти параметры, создадим свой первый inventory файл с помощью команды nano inventory или в сразу добавим в Visual Studio. Записываем в этот файл данные cat inventory Данные для записи: 
 
-    [webservers] nginx ansible_host=127.0.0.1 ansible_port=2222 ansible_private_key_file=/home/mary/os_lab2/test/ansible/.vagrant/machines/nginx/virtualbox/private_key
+    [webservers] nginx ansible_host=127.0.0.1 
+    ansible_port=2222 
+    ansible_private_key_file=/home/mary/os_lab2/test/ansible/.vagrant/machines/nginx/virtualbox/private_key
 
 Убедимся, что Ansible может управлять нашим хостом. Сделать это можно с помощью команды: 
 
