@@ -137,6 +137,7 @@
 ##    3. Напишем плейбук, который устанавливает NGINX в конфигурации по умолчанию, с применением модуля yum
 
 Создаем Playbook, который будет выполнять установку пакета epel-release. Создаем файл epel.yml со следующим содержимым:
+
     ---
     - name: Install EPEL Repo
       hosts: webservers
@@ -167,7 +168,7 @@
 
     ansible nginx -m yum -a "name=epel-release state=absent" -b 
     
-*Ответ системы должен быть: 
+*Ответ системы должен быть:* 
 
     nginx | CHANGED => "ansible_facts": "discovered_interpreter_python": "/usr/bin/python" ... 1/1 
     \n\nRemoved:\n epel-release.noarch 0:7-11 \n\nComplete!\n"
@@ -176,7 +177,7 @@
 
     ansible-playbook epel.yml 
     
-*Ответ системы должен быть: 
+*Ответ системы должен быть:* 
 
     PLAY [Install EPEL Repo] ******************************************************************************************************************************************************************
 
